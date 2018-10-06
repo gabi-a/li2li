@@ -59,7 +59,7 @@ def recv(port):
             if buf[0] != 0xF0:
                 buf = buf[1:]
                 continue
-            if buf[1] != 0x0D:
+            if len(buf) < 2 or buf[1] != 0x0D:
                 buf = buf[1:]
                 continue
             # Parse packet
