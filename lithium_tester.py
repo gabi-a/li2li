@@ -12,7 +12,7 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 interrupted = False
 
-s = serial.Serial('ttyUSB0')
+s = serial.Serial('/dev/ttyUSB0')
 li = pylithium.Lithium(s)
 
 transmitting = True

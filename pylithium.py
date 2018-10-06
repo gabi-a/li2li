@@ -1,6 +1,3 @@
-import sys
-assert sys.version_info >= (3, 0)
-
 class Lithium():
 
     SYNC_CHARS = b'\x48\x65'
