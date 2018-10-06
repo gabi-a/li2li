@@ -5,7 +5,7 @@ import struct
 import time
 import pylithium
 
-BAUD_RATE = 115200
+BAUD_RATE = 9600
 
 SEND_LOGFILE = "sent.log"
 RECV_LOGFILE = "recv.log"
@@ -29,7 +29,7 @@ def send(port):
     log_append(log, f'[send] Starting transmit at {time.strftime("%Y-%m-%d %H:%M:%S")} ...')
     # Send packets
     for packet_size in SEND_PACKET_SIZES:
-        for i in SEND_PACKET_ITERATIONS:
+        for i in range(SEND_PACKET_ITERATIONS):
             # Create \xF0\x0D[len][iter][padding]...
             packet = b''
             packet += b'\xF0\x0D'
