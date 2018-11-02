@@ -39,7 +39,7 @@ class Lithium():
             raise IOError("Lithium Direction Ack Failed")
         rx_command = self.port.read()
         if rx_command != command_code:
-            raise IOError("Lithium Command Ack Failed")
+            raise IOError(f"Lithium Command Ack Failed\nCommand code expected: {command_code}\nCommand code received: {rx_command}")
 
         if expect_response:
             rx_size = self.port.read(2)
@@ -80,7 +80,7 @@ class Lithium():
         self._do_command(b'\x01')
 
     def read_telemetry(self, ignore_reply=False):
-        return self._do_command(b'\07', expect_response=True, ignore_reply=ignore_reply)
+        return self._do_command(b'\x07', expect_response=True, ignore_reply=ignore_reply)
 
     def set_pa(self, setting):
         self._do_command(b'\x20', setting)
@@ -91,49 +91,23 @@ class Lithium():
     def read_buffer(self):
         return self.port.read_all()
 
+    def read_config(self):
+        return self._do_command(b'\x05', expect_response=True, ignore_reply=False)
+
+    def write_flash(self, hash):
+        self._do_command(b'\x08', hash)
+
 if __name__ == '__main__':
     import serial
     import time
+    import hashlib
 
-    li = Lithium(serial.Serial('COM2'))
+    li = Lithium(serial.Serial('COM7'))
     
-    li.transmit(b'H'*256)
-
-    # for i in range(10):
-        # li.transmit(255*b"H")
-        # li.transmit(b'BREAK ' + bytes([65+i]))
-
-    """
-    li.flush_input()
-    for i in range(50):
-        li.read_telemetry(ignore_reply=True)
-        time.sleep(0.02)
+    config = li.read_config()
+    time.sleep(1)
+    hash = hashlib.md5(config).digest()
+    print(len(hash))
+    print(hash)
+    li.write_flash(hash)
     
-    time.sleep(0.1)
-    buffer = li.read_buffer()
-    rssi = []
-    received = []
-    for i in range(len(buffer)):
-        if buffer[i] == li.SYNC_CHARS[0] and buffer[i+1] == li.SYNC_CHARS[1]:
-            direction = buffer[i+2]
-            command = buffer[i+3]
-            size = (buffer[i+4] << 8) + buffer[i+5]
-            # print("command code: ",hex(command))
-            # print("payload size: ",size)
-            check = (buffer[i+6], buffer[i+7])
-            payload = buffer[i+8:i+8+size]
-            if len(payload) != size:
-                print("Error: len(payload) != size : %d != %d"%(len(payload),size))
-                print(hex(command))
-                continue
-            if command == 0x07:
-                for byte in payload:
-                    print(byte,end=' ')
-                print()
-                rssi.append(payload[7])
-            if command == 0x04:
-                received.append(payload)
-
-    print(rssi)
-    print(received)
-    """

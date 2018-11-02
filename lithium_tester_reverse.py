@@ -24,7 +24,7 @@ def log_append(log, s):
 
 def send(port):
     device = serial.Serial(port, baudrate=BAUD_RATE, timeout=1.0)
-    lithium = pylithium.Lithium(device)
+    # lithium = pylithium.Lithium(device)
     log = open(SEND_LOGFILE, "a")
     log_append(log, f'[send] Starting transmit at {time.strftime("%Y-%m-%d %H:%M:%S")} ...')
     # Send packets
@@ -32,12 +32,13 @@ def send(port):
         for i in range(SEND_PACKET_ITERATIONS):
             # Create \xF0\x0D[len][iter][padding]...
             packet = b''
-            packet += b'\xF0\x0D'
+            # packet += b'\xF0\x0D'
             packet += struct.pack('<B', packet_size)
             packet += struct.pack('<B', i)
             packet += array.array('B', list(range(packet_size - 4))).tostring()
             try:
-                lithium.transmit(packet)
+                # lithium.transmit(packet)
+                device.write(b'\xC0\x00'+packet+b'\xC0')
             except IOError:
                 log_append(log, '[send] Failed transmit!')
                 continue
